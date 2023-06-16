@@ -22,51 +22,51 @@ const client = createClient({
 
 async function main(): Promise<void> {
   await client.connect();
-  // console.log(argv.org, argv.num);
-  // const issue = await getIssueDetails('replicated-collab', argv.org, argv.num);
-  // var docs = []
+  console.log(argv.org, argv.num);
+  const issue = await getIssueDetails('replicated-collab', argv.org, argv.num);
+  var docs = []
 
-  // let labels = [];
-  // const userLabels = await getLabelsPrompts(issue.userDescription);
-  // const replicatedLabels = await getLabelsPrompts(issue.userDescription);
+  let labels = [];
+  const userLabels = await getLabelsPrompts(issue.userDescription);
+  const replicatedLabels = await getLabelsPrompts(issue.userDescription);
 
-  // for (const label of Object.keys(userLabels)) {
-  //   if (userLabels[label]) {
-  //     labels.push(label);
-  //   }
-  // }
+  for (const label of Object.keys(userLabels)) {
+    if (userLabels[label]) {
+      labels.push(label);
+    }
+  }
 
-  // for (const label of Object.keys(replicatedLabels)) {
-  //   if (replicatedLabels[label] && !labels.includes(label)) {
-  //     labels.push(label);
-  //   }
-  // }
+  for (const label of Object.keys(replicatedLabels)) {
+    if (replicatedLabels[label] && !labels.includes(label)) {
+      labels.push(label);
+    }
+  }
 
-  // await createIssue(
-  //   {
-  //     "title": issue.title,
-  //     "description": issue.description,
-  //     "userDescription": issue.userDescription,
-  //     "replicatedDescription": issue.replicatedDescription,
-  //     "commentsFullText": issue.commentsFullText,
-  //     "labels": labels
-  //   }
-  // );
+  await createIssue(
+    {
+      "title": issue.title,
+      "description": issue.description,
+      "userDescription": issue.userDescription,
+      "replicatedDescription": issue.replicatedDescription,
+      "commentsFullText": issue.commentsFullText,
+      "labels": labels
+    }
+  );
 
-  // for (const comment of issue.comments) {
-  //   const analyzer = await commentAnalysis(comment.content);
-  //   const doc = new Document({
-  //     metadata: {
-  //       url: comment.url,
-  //       ...analyzer,
-  //     },
-  //     pageContent: comment.content,
-  //   });
-  //   docs.push(doc);
-  // }
-  // await saveDocs(client, docs);
+  for (const comment of issue.comments) {
+    const analyzer = await commentAnalysis(comment.content);
+    const doc = new Document({
+      metadata: {
+        url: comment.url,
+        ...analyzer,
+      },
+      pageContent: comment.content,
+    });
+    docs.push(doc);
+  }
+  await saveDocs(client, docs);
 
-  console.log(await searchDoc(client, "rook fail", 5))
+  // console.log(await searchDoc(client, "rook fail", 5))
   await client.disconnect();
   // console.log(await getIssue());
 }
