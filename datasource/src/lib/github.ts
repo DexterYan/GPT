@@ -35,6 +35,7 @@ async function getIssueDetails(owner: string, repo: string, issue_number: number
     var userDescription = description;
     var replicatedDescription = description;
     var replicatedGithubUsers = process.env.REPLICATED_GITHUB_USERS?.split(',') || [];
+    var githubComments = [];
 
     const issue = await octokit.rest.issues.get({
         owner: owner,
@@ -57,14 +58,17 @@ async function getIssueDetails(owner: string, repo: string, issue_number: number
                     continue;
                 }
                 if (replicatedGithubUsers.includes(comment.user.login)) {
-                    replicatedDescription += `${comment.body}\n`
+                    replicatedDescription += `${comment.body?.trim()}\n`
                 } else {
-                    userDescription += `${comment.body}\n`
+                    userDescription += `${comment.body?.trim()}\n`
                 }
             }
-
-            comment.body = comment.body?.replace(/\/(confirmation|pending|close)/gm, '');
-            issueCommentsFullText += `Comment #${comment.user?.login} ${comment.user?.organizations_url}:\n${comment.body}\n===========`;
+            comment.body = comment.body?.replace(/\/(pending)/gm, '');
+            issueCommentsFullText += `Comment #${comment.user?.login} ${comment.created_at}:\n${comment.body?.trim()}\n===========`;
+            githubComments.push({
+                url: comment.html_url,
+                content: `Comment #${comment.user?.login} ${comment.created_at}:\n${comment.body?.trim()}\n`
+            });
         }
     }
 
@@ -74,8 +78,8 @@ async function getIssueDetails(owner: string, repo: string, issue_number: number
         userDescription: userDescription,
         replicatedDescription: replicatedDescription,
         commentsFullText: issueCommentsFullText,
+        comments: githubComments
     };
 }
-
 
 export { getAllClosedIssuesIterator, getCommentsIterator, getIssueDetails };
